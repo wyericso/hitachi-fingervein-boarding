@@ -1,0 +1,28 @@
+{
+  "name": "hitachi-fingervein-boarding",
+  "version": "1.0.0",
+  "description": "A web application demonstrating authentication with finger vein device and getting boarding pass",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wyericso/hitachi-fingervein-boarding.git"
+  },
+  "keywords": [
+    "hitachi",
+    "finger",
+    "vein",
+    "boarding"
+  ],
+  "author": "Eric So",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wyericso/hitachi-fingervein-boarding/issues"
+  },
+  "homepage": "https://github.com/wyericso/hitachi-fingervein-boarding#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}

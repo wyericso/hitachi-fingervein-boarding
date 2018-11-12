@@ -1,0 +1,60 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+#header-line {
+    height: 5px;
+    background-color: rgb(204, 8, 20);
+}
+
+header {
+    height: 40px;
+}
+
+#logo {
+    margin: 5px 15px;
+}
+
+nav {
+    float: right;
+    height: 20px;
+    margin-top: 20px;
+}
+
+ul {
+    display: inline;
+}
+
+li {
+    display: inline;
+    margin: 0 10px;
+    cursor: pointer;
+    -webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+figure {
+    text-align: center;
+}
+
+#cover-img {
+    width: 100%;
+    max-width: 965px;
+}
+
+#boarding-pass {
+    margin: auto;
+    width: 965px;
+    height: 400px;
+    background-image: url("https://res.cloudinary.com/woooanet/image/upload/v1542013672/hitachi-fingervein-fe/boardingpass.png");
+    background-size: 100% 100%;
+    border: 1px solid;
+}
+
+footer {
+    text-align: center;
+    font-size: 12px;
+}
