@@ -47,11 +47,131 @@ figure {
 
 #boarding-pass {
     margin: auto;
-    width: 965px;
-    height: 400px;
+    width: 960px;
+    height: 389px;
     background-image: url("https://res.cloudinary.com/woooanet/image/upload/v1542013672/hitachi-fingervein-fe/boardingpass.png");
-    background-size: 100% 100%;
+    background-size: contain;
     border: 1px solid;
+    display: grid;
+    grid-template-columns: 3fr 1fr; 
+    grid-template-areas:
+        "bp-left bp-right";
+}
+
+#boarding-pass-left {
+    grid-area: bp-left;
+    position: relative;
+}
+
+#boarding-pass-right {
+    grid-area: bp-right;
+    position: relative;
+}
+
+#name-left, #from-long, #flight-left, #to-long, #date, #time, #gate, #boarding-time,
+#boarding-note, #name-right, #from-short, #flight-right, #to-short, #depart, #seat {
+    position: absolute;
+    height: 5%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+#name-left {
+    width: 28%;
+    top: 31%;
+    left: 4%;
+}
+
+#from-long, #flight-left, #to-long, #date, #time, #gate, #boarding-time {
+    width: 24%;
+}
+
+#from-long {
+    top: 51%;
+    left: 4%;
+}
+
+#flight-left {
+    top: 51%;
+    left: 33%;
+}
+
+#to-long {
+    top: 51%;
+    left: 67%;
+}
+
+#date {
+    top: 67%;
+    left: 4%;
+}
+
+#time {
+    top: 67%;
+    left: 33%;
+}
+
+#gate {
+    top: 83%;
+    left: 4%;
+}
+
+#boarding-time {
+    top: 83%;
+    left: 33%
+}
+
+#gate, #boarding-time, #seat {
+    font-size: 2.3em;
+    height: 12%;
+}
+
+#boarding-note {
+    font-size: 0.7em;
+    height: 24%;
+    width: 22%;
+    top: 63%;
+    left: 66%;
+    padding: 2%;
+}
+
+#name-right {
+    width: 86%;
+    top: 31%;
+    left: 7%;
+}
+
+#from-short {
+    width: 18%;
+    top: 44%;
+    left: 7%;
+    text-align: center;
+}
+
+#flight-right {
+    width: 30%;
+    top: 44%;
+    left: 32%;
+    text-align: center;
+}
+
+#to-short {
+    width: 18%;
+    top: 44%;
+    left: 68%;
+    text-align: center;
+}
+
+#depart {
+    width: 86%;
+    top: 67%;
+    left: 7%;
+}
+
+#seat {
+    width: 33%;
+    top: 83%;
+    left: 52%;
 }
 
 footer {
