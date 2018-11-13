@@ -29,11 +29,14 @@ ul {
 li {
     display: inline;
     margin: 0 10px;
-    cursor: pointer;
     -webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
     user-select: none; /* Standard syntax */
+}
+
+a {
+    all: unset;
 }
 
 figure {
@@ -46,7 +49,7 @@ figure {
 }
 
 #boarding-pass {
-    margin: auto;
+    margin: 1em auto;
     width: 960px;
     height: 389px;
     background-image: url("https://res.cloudinary.com/woooanet/image/upload/v1542013672/hitachi-fingervein-fe/boardingpass.png");
