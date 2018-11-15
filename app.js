@@ -15,6 +15,10 @@ const MONTH = [
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
 ];
 
+http.get(FINGER_VEIN_API + '/api/ledredon', (res) => {
+    res.resume();
+});
+
 app.use(express.static('views'));
 
 app.get('/', function (req, res) {
@@ -105,13 +109,19 @@ app.get('/login', (req, resp) => {
         .then(([boardingPass, html]) => {
             return showBoardingPass([boardingPass, html]);
         });
-
 });
 
 app.get('/logout', function (req, res) {
     fs.readFile('templates/index.html', 'utf8', (err, data) => {
         if (err) throw err;
         res.send(data.replace('{THIS_URL}', THIS_URL));
+    });
+});
+
+process.on('SIGINT', () => {
+    http.get(FINGER_VEIN_API + '/api/ledredoff', (res) => {
+        res.resume();
+        process.exit();
     });
 });
 
