@@ -6,7 +6,6 @@ This is an web application demonstrating authentication with Hitachi Finger Vein
 - This application is for demonstration purposes only.
 
 ## Todo ##
-- LED control
 - Login failure page
 - Prompt for placing finger
 - Loading animation

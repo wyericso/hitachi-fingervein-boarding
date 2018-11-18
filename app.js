@@ -29,8 +29,33 @@ app.get('/', function (req, res) {
 });
 
 app.get('/login', (req, resp) => {
-    let verification_1toN = function () {
+    let ledRedToGreen = function () {
         return new Promise((resolve) => {
+            http.get(FINGER_VEIN_API + '/api/ledredoff', (res) => {
+                res.resume();
+                http.get(FINGER_VEIN_API + '/api/ledgreenon', (res) => {
+                    res.resume();
+                    resolve();
+                });
+            });
+        });
+    }
+
+    let ledGreenToRed = function () {
+        return new Promise((resolve) => {
+            http.get(FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
+                res.resume();
+                http.get(FINGER_VEIN_API + '/api/ledredon', (res) => {
+                    res.resume();
+                    resolve();
+                });
+            });
+        });
+    };
+
+    let verification_1toN = function () {
+        return new Promise(async (resolve) => {
+            await ledRedToGreen();
             console.log('Calling finger vein API.');
             let data = '';
 
@@ -38,7 +63,8 @@ app.get('/login', (req, resp) => {
                 res.on('data', (chunk) => {
                     data += chunk;
                 });
-                res.on('end', () => {
+                res.on('end', async () => {
+                    await ledGreenToRed();
                     resolve(JSON.parse(data).verifiedTemplateNumber);
                 });
             });
@@ -75,40 +101,32 @@ app.get('/login', (req, resp) => {
         });
     };
 
-    let showBoardingPass = function ([boardingPass, html]) {
-        return new Promise((resolve) => {
-            console.log('Showing boarding pass.');
-            let flightDateObj = new Date(boardingPass.time);
-            let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
-            resp.send(html
-                .replace(/{THIS_URL}/g, THIS_URL)
-                .replace(/{GREETING}/g, boardingPass.name)
-                .replace(/{NAME}/g, boardingPass.name.toUpperCase())
-                .replace(/{FROM-LONG}/g, boardingPass.fromLong.toUpperCase())
-                .replace(/{FLIGHT}/g, boardingPass.flight)
-                .replace(/{TO-LONG}/g, boardingPass.toLong.toUpperCase())
-                .replace(/{MMM}/g, MONTH[flightDateObj.getMonth()])
-                .replace(/{DD}/g, flightDateObj.getDate().toString().padStart(2, '0'))
-                .replace(/{YYYY}/g, flightDateObj.getFullYear())
-                .replace(/{HH}/g, flightDateObj.getHours().toString().padStart(2, '0'))
-                .replace(/{MM}/g, flightDateObj.getMinutes().toString().padStart(2, '0'))
-                .replace(/{GATE}/g, boardingPass.gate)
-                .replace(/{BHH}/g, boardingDateObj.getHours().toString().padStart(2, '0'))
-                .replace(/{BMM}/g, boardingDateObj.getMinutes().toString().padStart(2, '0'))
-                .replace(/{FROM-SHORT}/g, boardingPass.fromShort)
-                .replace(/{TO-SHORT}/g, boardingPass.toShort)
-                .replace(/{SEAT}/g, boardingPass.seat)
-            );
-        });
-    };
-
-    Promise.all([verification_1toN(), connectDB()])
-        .then(([verifiedTemplateNumber, DBCollection]) => {
-            return Promise.all([loadBoardingPass([verifiedTemplateNumber, DBCollection]), readHtml()]);
-        })
-        .then(([boardingPass, html]) => {
-            return showBoardingPass([boardingPass, html]);
-        });
+    (async () => {
+        const [verifiedTemplateNumber, mongoClient] = await Promise.all([verification_1toN(), connectDB()]);
+        const [boardingPass, html] = await Promise.all([loadBoardingPass([verifiedTemplateNumber, mongoClient]), readHtml()]);
+        console.log('Showing boarding pass.');
+        let flightDateObj = new Date(boardingPass.time);
+        let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
+        resp.send(html
+            .replace(/{THIS_URL}/g, THIS_URL)
+            .replace(/{GREETING}/g, boardingPass.name)
+            .replace(/{NAME}/g, boardingPass.name.toUpperCase())
+            .replace(/{FROM-LONG}/g, boardingPass.fromLong.toUpperCase())
+            .replace(/{FLIGHT}/g, boardingPass.flight)
+            .replace(/{TO-LONG}/g, boardingPass.toLong.toUpperCase())
+            .replace(/{MMM}/g, MONTH[flightDateObj.getMonth()])
+            .replace(/{DD}/g, flightDateObj.getDate().toString().padStart(2, '0'))
+            .replace(/{YYYY}/g, flightDateObj.getFullYear())
+            .replace(/{HH}/g, flightDateObj.getHours().toString().padStart(2, '0'))
+            .replace(/{MM}/g, flightDateObj.getMinutes().toString().padStart(2, '0'))
+            .replace(/{GATE}/g, boardingPass.gate)
+            .replace(/{BHH}/g, boardingDateObj.getHours().toString().padStart(2, '0'))
+            .replace(/{BMM}/g, boardingDateObj.getMinutes().toString().padStart(2, '0'))
+            .replace(/{FROM-SHORT}/g, boardingPass.fromShort)
+            .replace(/{TO-SHORT}/g, boardingPass.toShort)
+            .replace(/{SEAT}/g, boardingPass.seat)
+        );
+    })();
 });
 
 app.get('/logout', function (req, res) {
