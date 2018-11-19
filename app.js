@@ -32,7 +32,7 @@ app.use(express.static('views'));
 app.get('/', function (req, res) {
     res.send(templateHtml
         .replace(/{NAV_PLACEHOLDER}/, '<li><a href="' + process.env.THIS_URL + '/login" onclick="promptForFinger()">Login</a></li>')
-        .replace(/{MAIN_PLACEHOLDER/, '<figure><img id="cover-img" src="https://res.cloudinary.com/woooanet/image/upload/v1540199193/hitachi-fingervein-fe/brandingimg_vid_e.jpg" /></figure>')
+        .replace(/{MAIN_PLACEHOLDER}/, '<figure><img id="cover-img" src="https://res.cloudinary.com/woooanet/image/upload/v1540199193/hitachi-fingervein-fe/brandingimg_vid_e.jpg" /></figure>')
     );
 });
 
