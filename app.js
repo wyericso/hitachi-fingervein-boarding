@@ -7,12 +7,21 @@ const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 const templateHtml = fs.readFileSync('templates/template.html', 'utf8');
 const boardingHtml = fs.readFileSync('templates/boarding.html_', 'utf8');
-
 const MONTH = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
 ];
 require('dotenv').config();
+
+const mongoClient = new MongoClient(process.env.DB_URL, { useNewUrlParser: true});
+let dB_Collection;
+
+(async () => {
+    await mongoClient.connect();
+    console.log('DB server connected.');
+    dB_Collection = mongoClient.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME);
+})();
+
 
 http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
     res.resume();
@@ -69,22 +78,10 @@ app.get('/login', (req, resp) => {
         });
     };
 
-    let connectDB = function () {
-        return new Promise((resolve) => {
-            console.log('Connecting DB.');
-            const mongoClient = new MongoClient(process.env.DB_URL, { useNewUrlParser: true});
-            mongoClient.connect((err) => {
-                console.log('DB server connected.');
-                resolve(mongoClient);
-            });
-        });
-    };
-
-    let loadBoardingPass = function ([verifiedTemplateNumber, mongoClient]) {
+    let loadBoardingPass = function (verifiedTemplateNumber) {
         return new Promise((resolve, reject) => {
             console.log('Loading boarding pass.');
-            mongoClient.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME).findOne({'verifiedTemplateNumber': verifiedTemplateNumber}, (err, boardingPass) => {
-                mongoClient.close();
+            dB_Collection.findOne({'verifiedTemplateNumber': verifiedTemplateNumber}, (err, boardingPass) => {
                 if (boardingPass) {
                     resolve(boardingPass);
                 }
@@ -97,8 +94,8 @@ app.get('/login', (req, resp) => {
 
     (async () => {
         try {
-            const [verifiedTemplateNumber, mongoClient] = await Promise.all([verification_1toN(), connectDB()]);
-            const boardingPass = await loadBoardingPass([verifiedTemplateNumber, mongoClient]);
+            const verifiedTemplateNumber = await verification_1toN();
+            const boardingPass = await loadBoardingPass(verifiedTemplateNumber);
 
             console.log('Showing boarding pass.');
             let flightDateObj = new Date(boardingPass.time);
@@ -137,7 +134,8 @@ app.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
+    await mongoClient.close();
     http.get(process.env.FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
         res.resume();
         process.exit();
