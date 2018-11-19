@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/wyericso/hitachi-fingervein-boarding#readme",
   "dependencies": {
+    "dotenv": "^6.1.0",
     "express": "^4.16.4",
     "mongodb": "^3.1.9"
   }

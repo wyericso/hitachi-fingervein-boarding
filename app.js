@@ -5,17 +5,13 @@ const app = express();
 const fs = require('fs');
 const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
-const DB_URL = 'mongodb://hitachi:hitachi123@ds151463.mlab.com:51463/hitachi-fingervein';
-const DB_NAME = 'hitachi-fingervein';
-const COLLECTION_NAME = 'boarding-pass';
-const THIS_URL = 'http://10.211.55.14';
-const FINGER_VEIN_API = 'http://10.211.55.14:8080';
 const MONTH = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
 ];
+require('dotenv').config();
 
-http.get(FINGER_VEIN_API + '/api/ledredon', (res) => {
+http.get(process.env.FINGER_VEIN_API + '/api/ledredon', (res) => {
     res.resume();
 });
 
@@ -25,15 +21,15 @@ app.get('/', function (req, res) {
     let html = fs.readFileSync('templates/head.html', 'utf8');
     html += fs.readFileSync('templates/index.html', 'utf8');
     html += fs.readFileSync('templates/tail.html', 'utf8');
-    res.send(html.replace('{THIS_URL}', THIS_URL));
+    res.send(html.replace('{THIS_URL}', process.env.THIS_URL));
 });
 
 app.get('/login', (req, resp) => {
     let ledRedToGreen = function () {
         return new Promise((resolve) => {
-            http.get(FINGER_VEIN_API + '/api/ledredoff', (res) => {
+            http.get(process.env.FINGER_VEIN_API + '/api/ledredoff', (res) => {
                 res.resume();
-                http.get(FINGER_VEIN_API + '/api/ledgreenon', (res) => {
+                http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
                     res.resume();
                     resolve();
                 });
@@ -43,9 +39,9 @@ app.get('/login', (req, resp) => {
 
     let ledGreenToRed = function () {
         return new Promise((resolve) => {
-            http.get(FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
+            http.get(process.env.FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
                 res.resume();
-                http.get(FINGER_VEIN_API + '/api/ledredon', (res) => {
+                http.get(process.env.FINGER_VEIN_API + '/api/ledredon', (res) => {
                     res.resume();
                     resolve();
                 });
@@ -59,7 +55,7 @@ app.get('/login', (req, resp) => {
             console.log('Calling finger vein API.');
             let data = '';
 
-            http.get(FINGER_VEIN_API + '/api/verification_1toN', (res) => {
+            http.get(process.env.FINGER_VEIN_API + '/api/verification_1toN', (res) => {
                 res.on('data', (chunk) => {
                     data += chunk;
                 });
@@ -79,7 +75,7 @@ app.get('/login', (req, resp) => {
     let connectDB = function () {
         return new Promise((resolve) => {
             console.log('Connecting DB.');
-            const mongoClient = new MongoClient(DB_URL, { useNewUrlParser: true});
+            const mongoClient = new MongoClient(process.env.DB_URL, { useNewUrlParser: true});
             mongoClient.connect((err) => {
                 console.log('DB server connected.');
                 resolve(mongoClient);
@@ -90,7 +86,7 @@ app.get('/login', (req, resp) => {
     let loadBoardingPass = function ([verifiedTemplateNumber, mongoClient]) {
         return new Promise((resolve, reject) => {
             console.log('Loading boarding pass.');
-            mongoClient.db(DB_NAME).collection(COLLECTION_NAME).findOne({'verifiedTemplateNumber': verifiedTemplateNumber}, (err, boardingPass) => {
+            mongoClient.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME).findOne({'verifiedTemplateNumber': verifiedTemplateNumber}, (err, boardingPass) => {
                 mongoClient.close();
                 if (boardingPass) {
                     resolve(boardingPass);
@@ -121,7 +117,7 @@ app.get('/login', (req, resp) => {
             let flightDateObj = new Date(boardingPass.time);
             let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
             resp.send(html
-                .replace(/{THIS_URL}/g, THIS_URL)
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{GREETING}/g, boardingPass.name)
                 .replace(/{NAME}/g, boardingPass.name.toUpperCase())
                 .replace(/{FROM-LONG}/g, boardingPass.fromLong.toUpperCase())
@@ -146,7 +142,7 @@ app.get('/login', (req, resp) => {
             html += fs.readFileSync('templates/error.html', 'utf8');
             html += fs.readFileSync('templates/tail.html', 'utf8');
             resp.send(html
-                .replace(/{THIS_URL}/g, THIS_URL)
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{ERROR}/g, err.toLowerCase())
             );
         }
@@ -158,12 +154,12 @@ app.get('/logout', function (req, res) {
 });
 
 process.on('SIGINT', () => {
-    http.get(FINGER_VEIN_API + '/api/ledredoff', (res) => {
+    http.get(process.env.FINGER_VEIN_API + '/api/ledredoff', (res) => {
         res.resume();
         process.exit();
     });
 });
 
-const listener = app.listen(80, function() {
+const listener = app.listen(process.env.PORT, function() {
     console.log('Listening on port ' + listener.address().port);
 });
