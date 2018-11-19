@@ -1,47 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Hitachi Boarding with Finger Vein</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-</head>
-<body>
-    <div id="header-line"></div>
-    <div id="container">
-        <header>
-            <img id="logo" src="https://res.cloudinary.com/woooanet/image/upload/v1540199211/hitachi-fingervein-fe/hitachi-inspire-next-logo.png" />
-            <nav>
-                <ul>
-                    <li>Hello, {GREETING}!</li>
-                    <li><a href="{THIS_URL}/logout">Logout</a></li>
-                </ul>
-            </nav>
-        </header>
-        <main>
-            <div id="boarding-pass">
-                <div id="boarding-pass-left">
-                    <div id="name-left">{NAME}</div>
-                    <div id="from-long">{FROM-LONG}</div>
-                    <div id="flight-left">{FLIGHT}</div>
-                    <div id="to-long">{TO-LONG}</div>
-                    <div id="date">{MMM} {DD} {YYYY}</div>
-                    <div id="time">{HH}:{MM}</div>
-                    <div id="gate">{GATE}</div>
-                    <div id="boarding-time">{BHH}:{BMM}</div>
-                    <div id="boarding-note">Please be at the boarding gate BEFORE {BHH}:{BMM}, otherwise you will not be accepted for travel</div>
-                </div>
-                <div id="boarding-pass-right">
-                    <div id="name-right">{NAME}</div>
-                    <div id="from-short">{FROM-SHORT}</div>
-                    <div id="flight-right">{FLIGHT}</div>
-                    <div id="to-short">{TO-SHORT}</div>
-                    <div id="depart">{MMM} {DD} {YYYY} @ {HH}:{MM}</div>
-                    <div id="seat">{SEAT}</div>
-                </div>
+<div id="container">
+    <header>
+        <img id="logo" src="https://res.cloudinary.com/woooanet/image/upload/v1540199211/hitachi-fingervein-fe/hitachi-inspire-next-logo.png" />
+        <nav>
+            <ul>
+                <li>Hello, {GREETING}!</li>
+                <li><a href="{THIS_URL}/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="boarding-pass">
+            <div id="boarding-pass-left">
+                <div id="name-left">{NAME}</div>
+                <div id="from-long">{FROM-LONG}</div>
+                <div id="flight-left">{FLIGHT}</div>
+                <div id="to-long">{TO-LONG}</div>
+                <div id="date">{MMM} {DD} {YYYY}</div>
+                <div id="time">{HH}:{MM}</div>
+                <div id="gate">{GATE}</div>
+                <div id="boarding-time">{BHH}:{BMM}</div>
+                <div id="boarding-note">Please be at the boarding gate BEFORE {BHH}:{BMM}, otherwise you will not be accepted for travel</div>
             </div>
-        </main>
-    </div>
-    <footer>&copy; Hitachi Vantara 2018. All Rights Reserved.</footer>
-</body>
-</html>
+            <div id="boarding-pass-right">
+                <div id="name-right">{NAME}</div>
+                <div id="from-short">{FROM-SHORT}</div>
+                <div id="flight-right">{FLIGHT}</div>
+                <div id="to-short">{TO-SHORT}</div>
+                <div id="depart">{MMM} {DD} {YYYY} @ {HH}:{MM}</div>
+                <div id="seat">{SEAT}</div>
+            </div>
+        </div>
+    </main>
+</div>

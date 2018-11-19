@@ -177,6 +177,11 @@ figure {
     left: 52%;
 }
 
+#error {
+    text-align: center;
+    margin: 2em;
+}
+
 footer {
     text-align: center;
     font-size: 12px;

@@ -22,10 +22,10 @@ http.get(FINGER_VEIN_API + '/api/ledredon', (res) => {
 app.use(express.static('views'));
 
 app.get('/', function (req, res) {
-    fs.readFile('templates/index.html', 'utf8', (err, data) => {
-        if (err) throw err;
-        res.send(data.replace('{THIS_URL}', THIS_URL));
-    });
+    let html = fs.readFileSync('templates/head.html', 'utf8');
+    html += fs.readFileSync('templates/index.html', 'utf8');
+    html += fs.readFileSync('templates/tail.html', 'utf8');
+    res.send(html.replace('{THIS_URL}', THIS_URL));
 });
 
 app.get('/login', (req, resp) => {
@@ -54,7 +54,7 @@ app.get('/login', (req, resp) => {
     };
 
     let verification_1toN = function () {
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve, reject) => {
             await ledRedToGreen();
             console.log('Calling finger vein API.');
             let data = '';
@@ -65,7 +65,12 @@ app.get('/login', (req, resp) => {
                 });
                 res.on('end', async () => {
                     await ledGreenToRed();
-                    resolve(JSON.parse(data).verifiedTemplateNumber);
+                    if (JSON.parse(data).response === 'ok') {
+                        resolve(JSON.parse(data).verifiedTemplateNumber);
+                    }
+                    else {
+                        reject('Finger vein not recognized.');
+                    }
                 });
             });
         });
@@ -83,11 +88,16 @@ app.get('/login', (req, resp) => {
     };
 
     let loadBoardingPass = function ([verifiedTemplateNumber, mongoClient]) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             console.log('Loading boarding pass.');
             mongoClient.db(DB_NAME).collection(COLLECTION_NAME).findOne({'verifiedTemplateNumber': verifiedTemplateNumber}, (err, boardingPass) => {
                 mongoClient.close();
-                resolve(boardingPass);
+                if (boardingPass) {
+                    resolve(boardingPass);
+                }
+                else {
+                    reject('Boarding pass not found.');
+                }
             });
         });
     };
@@ -95,45 +105,56 @@ app.get('/login', (req, resp) => {
     let readHtml = function () {
         return new Promise((resolve) => {
             console.log('Reading HTML.');
-            fs.readFile('templates/boarding.html', 'utf8', (err, html) => {
-                resolve(html);
-            });
+            let html = fs.readFileSync('templates/head.html', 'utf8');
+            html += fs.readFileSync('templates/boarding.html', 'utf8');
+            html += fs.readFileSync('templates/tail.html', 'utf8');
+            resolve(html);
         });
     };
 
     (async () => {
-        const [verifiedTemplateNumber, mongoClient] = await Promise.all([verification_1toN(), connectDB()]);
-        const [boardingPass, html] = await Promise.all([loadBoardingPass([verifiedTemplateNumber, mongoClient]), readHtml()]);
-        console.log('Showing boarding pass.');
-        let flightDateObj = new Date(boardingPass.time);
-        let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
-        resp.send(html
-            .replace(/{THIS_URL}/g, THIS_URL)
-            .replace(/{GREETING}/g, boardingPass.name)
-            .replace(/{NAME}/g, boardingPass.name.toUpperCase())
-            .replace(/{FROM-LONG}/g, boardingPass.fromLong.toUpperCase())
-            .replace(/{FLIGHT}/g, boardingPass.flight)
-            .replace(/{TO-LONG}/g, boardingPass.toLong.toUpperCase())
-            .replace(/{MMM}/g, MONTH[flightDateObj.getMonth()])
-            .replace(/{DD}/g, flightDateObj.getDate().toString().padStart(2, '0'))
-            .replace(/{YYYY}/g, flightDateObj.getFullYear())
-            .replace(/{HH}/g, flightDateObj.getHours().toString().padStart(2, '0'))
-            .replace(/{MM}/g, flightDateObj.getMinutes().toString().padStart(2, '0'))
-            .replace(/{GATE}/g, boardingPass.gate)
-            .replace(/{BHH}/g, boardingDateObj.getHours().toString().padStart(2, '0'))
-            .replace(/{BMM}/g, boardingDateObj.getMinutes().toString().padStart(2, '0'))
-            .replace(/{FROM-SHORT}/g, boardingPass.fromShort)
-            .replace(/{TO-SHORT}/g, boardingPass.toShort)
-            .replace(/{SEAT}/g, boardingPass.seat)
-        );
+        try {
+            const [verifiedTemplateNumber, mongoClient] = await Promise.all([verification_1toN(), connectDB()]);
+            const [boardingPass, html] = await Promise.all([loadBoardingPass([verifiedTemplateNumber, mongoClient]), readHtml()]);
+
+            console.log('Showing boarding pass.');
+            let flightDateObj = new Date(boardingPass.time);
+            let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
+            resp.send(html
+                .replace(/{THIS_URL}/g, THIS_URL)
+                .replace(/{GREETING}/g, boardingPass.name)
+                .replace(/{NAME}/g, boardingPass.name.toUpperCase())
+                .replace(/{FROM-LONG}/g, boardingPass.fromLong.toUpperCase())
+                .replace(/{FLIGHT}/g, boardingPass.flight)
+                .replace(/{TO-LONG}/g, boardingPass.toLong.toUpperCase())
+                .replace(/{MMM}/g, MONTH[flightDateObj.getMonth()])
+                .replace(/{DD}/g, flightDateObj.getDate().toString().padStart(2, '0'))
+                .replace(/{YYYY}/g, flightDateObj.getFullYear())
+                .replace(/{HH}/g, flightDateObj.getHours().toString().padStart(2, '0'))
+                .replace(/{MM}/g, flightDateObj.getMinutes().toString().padStart(2, '0'))
+                .replace(/{GATE}/g, boardingPass.gate)
+                .replace(/{BHH}/g, boardingDateObj.getHours().toString().padStart(2, '0'))
+                .replace(/{BMM}/g, boardingDateObj.getMinutes().toString().padStart(2, '0'))
+                .replace(/{FROM-SHORT}/g, boardingPass.fromShort)
+                .replace(/{TO-SHORT}/g, boardingPass.toShort)
+                .replace(/{SEAT}/g, boardingPass.seat)
+            );
+        }
+        catch (err) {
+            console.log('Error: ', err);
+            let html = fs.readFileSync('templates/head.html', 'utf8');
+            html += fs.readFileSync('templates/error.html', 'utf8');
+            html += fs.readFileSync('templates/tail.html', 'utf8');
+            resp.send(html
+                .replace(/{THIS_URL}/g, THIS_URL)
+                .replace(/{ERROR}/g, err.toLowerCase())
+            );
+        }
     })();
 });
 
 app.get('/logout', function (req, res) {
-    fs.readFile('templates/index.html', 'utf8', (err, data) => {
-        if (err) throw err;
-        res.send(data.replace('{THIS_URL}', THIS_URL));
-    });
+    res.redirect('/');
 });
 
 process.on('SIGINT', () => {
