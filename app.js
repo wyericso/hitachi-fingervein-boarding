@@ -5,6 +5,9 @@ const app = express();
 const fs = require('fs');
 const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
+const templateHtml = fs.readFileSync('templates/template.html', 'utf8');
+const boardingHtml = fs.readFileSync('templates/boarding.html_', 'utf8');
+
 const MONTH = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
@@ -18,10 +21,10 @@ http.get(process.env.FINGER_VEIN_API + '/api/ledredon', (res) => {
 app.use(express.static('views'));
 
 app.get('/', function (req, res) {
-    let html = fs.readFileSync('templates/head.html', 'utf8');
-    html += fs.readFileSync('templates/index.html', 'utf8');
-    html += fs.readFileSync('templates/tail.html', 'utf8');
-    res.send(html.replace('{THIS_URL}', process.env.THIS_URL));
+    res.send(templateHtml
+        .replace(/{NAV_PLACEHOLDER}/, '<li><a href="' + process.env.THIS_URL + '/login" onclick="promptForFinger()">Login</a></li>')
+        .replace(/{MAIN_PLACEHOLDER/, '<figure><img id="cover-img" src="https://res.cloudinary.com/woooanet/image/upload/v1540199193/hitachi-fingervein-fe/brandingimg_vid_e.jpg" /></figure>')
+    );
 });
 
 app.get('/login', (req, resp) => {
@@ -98,27 +101,17 @@ app.get('/login', (req, resp) => {
         });
     };
 
-    let readHtml = function () {
-        return new Promise((resolve) => {
-            console.log('Reading HTML.');
-            let html = fs.readFileSync('templates/head.html', 'utf8');
-            html += fs.readFileSync('templates/boarding.html', 'utf8');
-            html += fs.readFileSync('templates/tail.html', 'utf8');
-            resolve(html);
-        });
-    };
-
     (async () => {
         try {
             const [verifiedTemplateNumber, mongoClient] = await Promise.all([verification_1toN(), connectDB()]);
-            const [boardingPass, html] = await Promise.all([loadBoardingPass([verifiedTemplateNumber, mongoClient]), readHtml()]);
+            const boardingPass = await loadBoardingPass([verifiedTemplateNumber, mongoClient]);
 
             console.log('Showing boarding pass.');
             let flightDateObj = new Date(boardingPass.time);
             let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
-            resp.send(html
-                .replace(/{THIS_URL}/g, process.env.THIS_URL)
-                .replace(/{GREETING}/g, boardingPass.name)
+            resp.send(templateHtml
+                .replace(/{NAV_PLACEHOLDER}/, '<li>Hello, ' + boardingPass.name + '!</li><li><a href="' + process.env.THIS_URL + '/logout">Logout</a></li>')
+                .replace(/{MAIN_PLACEHOLDER}/, boardingHtml)
                 .replace(/{NAME}/g, boardingPass.name.toUpperCase())
                 .replace(/{FROM-LONG}/g, boardingPass.fromLong.toUpperCase())
                 .replace(/{FLIGHT}/g, boardingPass.flight)
@@ -138,12 +131,9 @@ app.get('/login', (req, resp) => {
         }
         catch (err) {
             console.log('Error: ', err);
-            let html = fs.readFileSync('templates/head.html', 'utf8');
-            html += fs.readFileSync('templates/error.html', 'utf8');
-            html += fs.readFileSync('templates/tail.html', 'utf8');
-            resp.send(html
-                .replace(/{THIS_URL}/g, process.env.THIS_URL)
-                .replace(/{ERROR}/g, err.toLowerCase())
+            resp.send(templateHtml
+                .replace(/{NAV_PLACEHOLDER}/, '<li><a href="' + process.env.THIS_URL + '/login" onclick="promptForFinger()">Login</a></li>')
+                .replace(/{MAIN_PLACEHOLDER}/, '<p id="error">Sorry, ' + err.toLowerCase() + '</p>')
             );
         }
     })();

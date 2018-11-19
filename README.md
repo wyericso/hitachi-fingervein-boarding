@@ -18,7 +18,6 @@ This application is for demonstration purposes only.
 5. Use web browser to open the web interface.
 
 ## Todo ##
-- Further factorize HTML loading
 - Minor bug fixing:
     - Cannot reset finger vein device after API starting
     - Loading page not animated after starting this application
