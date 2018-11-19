@@ -10,7 +10,7 @@ This application is for demonstration purposes only.
     - Node.js 10.13.0
 - Require Internet access for loading pictures and MongoDB online.
 
-## Starting Procedures ##
+## Instructions ##
 1. Modify `.env` for your appliation environment.
 2. Plugin the Hitachi Finger Vein Device (H1E-USB).
 3. Start **Hitachi Finger Vein Device (H1E-USB) API** (https://github.com/wyericso/hitachi-fingervein).
@@ -19,6 +19,5 @@ This application is for demonstration purposes only.
 
 ## Todo ##
 - Screen capture or recording for presentation
-- Preload 100 boarding passes
 - Explore glitch
 - Error handling
