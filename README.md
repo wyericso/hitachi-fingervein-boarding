@@ -21,7 +21,6 @@ This application is for demonstration purposes only.
 - Minor bug fixing:
     - Cannot reset finger vein device after API starting
     - Loading page not animated after starting this application
-- Use green and green blinking LED instead
 - Screen capture or recording for presentation
 - Explore glitch
 - Error handling

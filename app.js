@@ -14,7 +14,7 @@ const MONTH = [
 ];
 require('dotenv').config();
 
-http.get(process.env.FINGER_VEIN_API + '/api/ledredon', (res) => {
+http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
     res.resume();
 });
 
@@ -28,33 +28,27 @@ app.get('/', function (req, res) {
 });
 
 app.get('/login', (req, resp) => {
-    let ledRedToGreen = function () {
+    let ledBlink = function () {
         return new Promise((resolve) => {
-            http.get(process.env.FINGER_VEIN_API + '/api/ledredoff', (res) => {
+            http.get(process.env.FINGER_VEIN_API + '/api/ledgreenblink', (res) => {
                 res.resume();
-                http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
-                    res.resume();
-                    resolve();
-                });
+                resolve();
             });
         });
     }
 
-    let ledGreenToRed = function () {
+    let ledOn = function () {
         return new Promise((resolve) => {
-            http.get(process.env.FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
+            http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
                 res.resume();
-                http.get(process.env.FINGER_VEIN_API + '/api/ledredon', (res) => {
-                    res.resume();
-                    resolve();
-                });
+                resolve();
             });
         });
     };
 
     let verification_1toN = function () {
         return new Promise(async (resolve, reject) => {
-            await ledRedToGreen();
+            await ledBlink();
             console.log('Calling finger vein API.');
             let data = '';
 
@@ -63,7 +57,7 @@ app.get('/login', (req, resp) => {
                     data += chunk;
                 });
                 res.on('end', async () => {
-                    await ledGreenToRed();
+                    await ledOn();
                     if (JSON.parse(data).response === 'ok') {
                         resolve(JSON.parse(data).verifiedTemplateNumber);
                     }
@@ -144,7 +138,7 @@ app.get('/logout', function (req, res) {
 });
 
 process.on('SIGINT', () => {
-    http.get(process.env.FINGER_VEIN_API + '/api/ledredoff', (res) => {
+    http.get(process.env.FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
         res.resume();
         process.exit();
     });
