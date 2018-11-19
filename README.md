@@ -6,7 +6,6 @@ This is an web application demonstrating authentication with Hitachi Finger Vein
 - This application is for demonstration purposes only.
 
 ## Todo ##
-- Loading animation
 - Screen capture or recording for presentation
 - Hide DB login information
 - Preload 100 boarding passes
