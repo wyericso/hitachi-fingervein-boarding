@@ -31,7 +31,8 @@ app.use(express.static('views'));
 
 app.get('/', function (req, res) {
     res.send(templateHtml
-        .replace(/{NAV_PLACEHOLDER}/, '<li><a href="' + process.env.THIS_URL + '/login" onclick="promptForFinger()">Login</a></li>')
+        .replace(/{THIS_URL}/, process.env.THIS_URL)
+        .replace(/{NAV_PLACEHOLDER}/, '<li onclick="logIn()">Login</li>')
         .replace(/{MAIN_PLACEHOLDER}/, '<figure><img id="cover-img" src="https://res.cloudinary.com/woooanet/image/upload/v1540199193/hitachi-fingervein-fe/brandingimg_vid_e.jpg" /></figure>')
     );
 });
@@ -101,6 +102,7 @@ app.get('/login', (req, resp) => {
             let flightDateObj = new Date(boardingPass.time);
             let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
             resp.send(templateHtml
+                .replace(/{THIS_URL}/, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, '<li>Hello, ' + boardingPass.name + '!</li><li><a href="' + process.env.THIS_URL + '/logout">Logout</a></li>')
                 .replace(/{MAIN_PLACEHOLDER}/, boardingHtml)
                 .replace(/{NAME}/g, boardingPass.name.toUpperCase())
@@ -123,7 +125,8 @@ app.get('/login', (req, resp) => {
         catch (err) {
             console.log('Error: ', err);
             resp.send(templateHtml
-                .replace(/{NAV_PLACEHOLDER}/, '<li><a href="' + process.env.THIS_URL + '/login" onclick="promptForFinger()">Login</a></li>')
+                .replace(/{THIS_URL}/, process.env.THIS_URL)
+                .replace(/{NAV_PLACEHOLDER}/, '<li onclick="logIn()">Login</li>')
                 .replace(/{MAIN_PLACEHOLDER}/, '<p id="error">Sorry, ' + err.toLowerCase() + '</p>')
             );
         }

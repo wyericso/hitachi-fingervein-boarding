@@ -20,8 +20,7 @@ This application is for demonstration purposes only.
 ## Todo ##
 - Minor bug fixing:
     - Cannot reset finger vein device after API starting
-    - Loading page not animated after starting this application
-    - Chrome not showing correct cursor for `a`
+- eslint
 - Screen capture or recording for presentation
 - Explore glitch
 - Error handling
