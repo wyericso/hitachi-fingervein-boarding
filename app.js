@@ -8,7 +8,7 @@ const MongoClient = require('mongodb').MongoClient;
 const urlencodedParser = require('body-parser').urlencoded({extended: true});
 const templateHtml = fs.readFileSync('templates/template.html', 'utf8');
 const boardingHtml = fs.readFileSync('templates/boarding.html_', 'utf8');
-const registerHtml = fs.readFileSync('templates/register.html', 'utf8');
+const registerHtml = fs.readFileSync('templates/register.html_', 'utf8');
 const MONTH = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'

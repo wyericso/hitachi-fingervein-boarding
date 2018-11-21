@@ -21,8 +21,8 @@ This application is for demonstration purposes only.
 5. Use web browser to open the web interface.
 
 ## Todo ##
-- Registration with user inputting boarding pass information
 - Test migrating platform
+- Add finger vein initialization step (i.e. sending encryption key)
 - Minor bug fixing:
     - Cannot reset finger vein device after API starting
 - eslint
