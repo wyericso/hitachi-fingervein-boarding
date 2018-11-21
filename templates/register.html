@@ -1,0 +1,28 @@
+<form id="registration-form" action="/submit" method="post">
+    <div id="r-header">Registration Form</div>
+    <div id="q-and-a">
+        <label for="template-number-input" id="template-number-label">Finger Vein #:</label>
+        <input type="text" id="template-number-input" name="template-number-input" value="{TEMPLATE_NUMBER}" readonly>
+        <label for="name-input" id="name-label">Name:</label>
+        <input type="text" id="name-input" name="name-input" placeholder="Full name" required>
+        <label for="from-long-input" id="from-long-label">From (full name):</label>
+        <input type="text" id="from-long-input" name="from-long-input" placeholder="e.g. Hong Kong" required>
+        <label for="from-short-input" id="from-short-label">From (abbreviated):</label>
+        <input type="text" id="from-short-input" name="from-short-input" placeholder="e.g. HKG" required>
+        <label for="to-long-input" id="to-long-label">To (full name):</label>
+        <input type="text" id="to-long-input" name="to-long-input" placeholder="e.g. Vancouver" required>
+        <label for="to-short-input" id="to-short-label">To (abbreviated):</label>
+        <input type="text" id="to-short-input" name="to-short-input" placeholder="e.g. YVR" required>
+        <label for="flight-input" id="flight-label">Flight:</label>
+        <input type="text" id="flight-input" name="flight-input" placeholder="e.g. AC658" required>
+        <label for="time-input" id="time-label">Time:</label>
+        <input type="text" id="time-input" name="time-input" value="Wed, 09 Jan 2019 21:15:00 GMT+0800" required>
+        <label for="gate-input" id="gate-label">Gate:</label>
+        <input type="text" id="gate-input" name="gate-input" placeholder="e.g. 32" required>
+        <label for="seat-input" id="seat-label">Seat:</label>
+        <input type="text" id="seat-input" name="seat-input" placeholder="e.g. 17B" required>
+    </div>
+    <div id="r-footer">
+        <button type="submit" id="submit">Submit</button>
+    </div>
+</form>

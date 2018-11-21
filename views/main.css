@@ -239,4 +239,37 @@ footer {
     100% {
       transform: rotate(360deg);
     }
-}  
+}
+
+form {
+    margin: 1em auto;
+    max-width: 965px;
+}
+
+#r-header, #r-footer {
+    text-align: center;
+}
+
+#q-and-a {
+    display: grid;
+    grid-template-columns: 25fr 75fr;
+    grid-template-rows: auto;
+    grid-gap: 1em;
+    margin: 1em 0;
+    padding: 0 10%;
+}
+
+label {
+    text-align: right;
+    padding: 2px;
+}
+
+input {
+    font-size: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+#template-number-input {
+    cursor: not-allowed; 
+}

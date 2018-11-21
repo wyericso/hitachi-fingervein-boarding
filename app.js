@@ -5,8 +5,10 @@ const app = express();
 const fs = require('fs');
 const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
+const urlencodedParser = require('body-parser').urlencoded({extended: true});
 const templateHtml = fs.readFileSync('templates/template.html', 'utf8');
 const boardingHtml = fs.readFileSync('templates/boarding.html_', 'utf8');
+const registerHtml = fs.readFileSync('templates/register.html', 'utf8');
 const MONTH = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
@@ -210,7 +212,47 @@ app.get('/register', (req, resp) => {
                     <li onclick="register()">Register</li>
                     <li onclick="logIn()">Login</li>
                 `)
-                .replace(/{MAIN_PLACEHOLDER}/, '<p id="register">Registration succeeded.<br>templateNumber: ' + templateNumber + '</p>')
+                .replace(/{MAIN_PLACEHOLDER}/, registerHtml)
+                .replace(/{TEMPLATE_NUMBER}/, templateNumber)
+            );
+        }
+        catch (err) {
+            console.log('Error: ', err);
+            resp.send(templateHtml
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
+                .replace(/{NAV_PLACEHOLDER}/, `
+                    <li onclick="register()">Register</li>
+                    <li onclick="logIn()">Login</li>
+                `)
+                .replace(/{MAIN_PLACEHOLDER}/, '<p id="error">Sorry, ' + err.toLowerCase() + '</p>')
+            );
+        }
+    })();
+});
+
+app.post('/submit', urlencodedParser, (req, res) => {
+    (async () => {
+        try {
+            await dB_Collection.insertOne({
+                'verifiedTemplateNumber': parseInt(req.body['template-number-input'], 10),
+                'name': req.body['name-input'],
+                'fromLong': req.body['from-long-input'],
+                'fromShort': req.body['from-short-input'],
+                'toLong': req.body['to-long-input'],
+                'toShort': req.body['to-short-input'],
+                'flight': req.body['flight-input'],
+                'time': req.body['time-input'],
+                'gate': req.body['gate-input'],
+                'seat': req.body['seat-input']
+            });
+
+            res.send(templateHtml
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
+                .replace(/{NAV_PLACEHOLDER}/, `
+                    <li onclick="register()">Register</li>
+                    <li onclick="logIn()">Login</li>
+                `)
+                .replace(/{MAIN_PLACEHOLDER}/, '<p id="register">Registration succeeded.</p>')
             );
         }
         catch (err) {
