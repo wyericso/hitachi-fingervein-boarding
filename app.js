@@ -13,6 +13,24 @@ const MONTH = [
 ];
 require('dotenv').config();
 
+const ledGreenBlink = function () {
+    return new Promise((resolve) => {
+        http.get(process.env.FINGER_VEIN_API + '/api/ledgreenblink', (res) => {
+            res.resume();
+            resolve();
+        });
+    });
+}
+
+const ledGreenOn = function () {
+    return new Promise((resolve) => {
+        http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
+            res.resume();
+            resolve();
+        });
+    });
+};
+
 const mongoClient = new MongoClient(process.env.DB_URL, { useNewUrlParser: true});
 let dB_Collection;
 
@@ -31,35 +49,20 @@ app.use(express.static('views'));
 
 app.get('/', function (req, res) {
     res.send(templateHtml
-        .replace(/{THIS_URL}/, process.env.THIS_URL)
-        .replace(/{NAV_PLACEHOLDER}/, '<li onclick="logIn()">Login</li>')
+        .replace(/{THIS_URL}/g, process.env.THIS_URL)
+        .replace(/{NAV_PLACEHOLDER}/, `
+            <li onclick="register()">Register</li>
+            <li onclick="logIn()">Login</li>
+        `)
         .replace(/{MAIN_PLACEHOLDER}/, '<figure><img id="cover-img" src="https://res.cloudinary.com/woooanet/image/upload/v1540199193/hitachi-fingervein-fe/brandingimg_vid_e.jpg" /></figure>')
     );
 });
 
 app.get('/login', (req, resp) => {
-    let ledBlink = function () {
-        return new Promise((resolve) => {
-            http.get(process.env.FINGER_VEIN_API + '/api/ledgreenblink', (res) => {
-                res.resume();
-                resolve();
-            });
-        });
-    }
-
-    let ledOn = function () {
-        return new Promise((resolve) => {
-            http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
-                res.resume();
-                resolve();
-            });
-        });
-    };
-
     let verification_1toN = function () {
         return new Promise(async (resolve, reject) => {
-            await ledBlink();
-            console.log('Calling finger vein API.');
+            await ledGreenBlink();
+            console.log('Calling finger vein verification 1 to N API.');
             let data = '';
 
             http.get(process.env.FINGER_VEIN_API + '/api/verification_1toN', (res) => {
@@ -67,7 +70,7 @@ app.get('/login', (req, resp) => {
                     data += chunk;
                 });
                 res.on('end', async () => {
-                    await ledOn();
+                    await ledGreenOn();
                     if (JSON.parse(data).response === 'ok') {
                         resolve(JSON.parse(data).verifiedTemplateNumber);
                     }
@@ -102,7 +105,7 @@ app.get('/login', (req, resp) => {
             let flightDateObj = new Date(boardingPass.time);
             let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
             resp.send(templateHtml
-                .replace(/{THIS_URL}/, process.env.THIS_URL)
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, '<li>Hello, ' + boardingPass.name + '!</li><li><a href="' + process.env.THIS_URL + '/logout">Logout</a></li>')
                 .replace(/{MAIN_PLACEHOLDER}/, boardingHtml)
                 .replace(/{NAME}/g, boardingPass.name.toUpperCase())
@@ -125,8 +128,11 @@ app.get('/login', (req, resp) => {
         catch (err) {
             console.log('Error: ', err);
             resp.send(templateHtml
-                .replace(/{THIS_URL}/, process.env.THIS_URL)
-                .replace(/{NAV_PLACEHOLDER}/, '<li onclick="logIn()">Login</li>')
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
+                .replace(/{NAV_PLACEHOLDER}/, `
+                    <li onclick="register()">Register</li>
+                    <li onclick="logIn()">Login</li>
+                `)
                 .replace(/{MAIN_PLACEHOLDER}/, '<p id="error">Sorry, ' + err.toLowerCase() + '</p>')
             );
         }
@@ -135,6 +141,90 @@ app.get('/login', (req, resp) => {
 
 app.get('/logout', function (req, res) {
     res.redirect('/');
+});
+
+app.get('/register', (req, resp) => {
+    const receiveTemplate = function() {
+        return new Promise(async (resolve, reject) => {
+            await ledGreenBlink();
+            console.log('Calling finger vein receive template API.');
+            let data = '';
+
+            http.get(process.env.FINGER_VEIN_API + '/api/receive_template', (res) => {
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+                res.on('end', async() => {
+                    await ledGreenOn();
+                    if (JSON.parse(data).response === 'ok') {
+                        resolve({'template': JSON.parse(data).template});
+                    }
+                    else {
+                        reject('Finger vein not recognized.');
+                    }
+                });
+            });
+        });
+    };
+
+    const sendTemplate = function(templateObj) {
+        return new Promise(async (resolve, reject) => {
+            console.log('Calling finger vein send template API.');
+            let data = '';
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const requ = http.request(process.env.FINGER_VEIN_API + '/api/send_template', options, (res) => {
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+                res.on('end', async() => {
+                    if (JSON.parse(data).response === 'ok') {
+                        resolve(JSON.parse(data).templateNumber);
+                    }
+                    else {
+                        reject('Finger vein not recognized.');
+                    }
+                });
+            });
+
+            requ.write(JSON.stringify(templateObj));
+            requ.end();
+        });
+    };
+
+    (async () => {
+        try {
+            const templateObj = await receiveTemplate();
+            const templateNumber = await sendTemplate(templateObj);
+
+            console.log('Showing registration page.');
+            resp.send(templateHtml
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
+                .replace(/{NAV_PLACEHOLDER}/, `
+                    <li onclick="register()">Register</li>
+                    <li onclick="logIn()">Login</li>
+                `)
+                .replace(/{MAIN_PLACEHOLDER}/, '<p id="register">Registration succeeded.<br>templateNumber: ' + templateNumber + '</p>')
+            );
+        }
+        catch (err) {
+            console.log('Error: ', err);
+            resp.send(templateHtml
+                .replace(/{THIS_URL}/g, process.env.THIS_URL)
+                .replace(/{NAV_PLACEHOLDER}/, `
+                    <li onclick="register()">Register</li>
+                    <li onclick="logIn()">Login</li>
+                `)
+                .replace(/{MAIN_PLACEHOLDER}/, '<p id="error">Sorry, ' + err.toLowerCase() + '</p>')
+            );
+        }
+    })();
 });
 
 process.on('SIGINT', async () => {

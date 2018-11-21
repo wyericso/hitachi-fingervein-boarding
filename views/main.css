@@ -179,7 +179,7 @@ figure {
     left: 52%;
 }
 
-#error {
+#error, #register {
     text-align: center;
     margin: 2em;
 }
