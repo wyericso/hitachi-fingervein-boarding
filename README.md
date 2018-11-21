@@ -9,6 +9,9 @@ This application is for demonstration purposes only.
     - Ubuntu 18.04.1 Desktop
     - Node.js 10.13.0
 - Require Internet access for loading pictures and MongoDB online.
+- Tested browsers:
+    - Safari 12.0.1 on macOS
+    - Chrome 70.0.3538.102 on macOS
 
 ## Instructions ##
 1. Modify `.env` for your appliation environment.
@@ -18,9 +21,13 @@ This application is for demonstration purposes only.
 5. Use web browser to open the web interface.
 
 ## Todo ##
+- Registration with user inputting boarding pass information
+- Test migrating platform
 - Minor bug fixing:
     - Cannot reset finger vein device after API starting
 - eslint
+    - Try use `const` whenever possible
+    - Use `() => {}` instead of `function () {}` whenever possible
 - Screen capture or recording for presentation
 - Explore glitch
 - Error handling
