@@ -107,7 +107,7 @@ const names = [
     'Alison Blake'
 ];
 
-for (let i = 6; i < 100; i++) {
+for (let i = 0; i < 100; i++) {
     docs.push({
         "verifiedTemplateNumber": i,
         "name": names[i],

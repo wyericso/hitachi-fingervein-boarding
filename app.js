@@ -233,7 +233,9 @@ app.get('/register', (req, resp) => {
 app.post('/submit', urlencodedParser, (req, res) => {
     (async () => {
         try {
-            await dB_Collection.insertOne({
+            await dB_Collection.findOneAndReplace({
+                'verifiedTemplateNumber': parseInt(req.body['template-number-input'], 10)
+            }, {
                 'verifiedTemplateNumber': parseInt(req.body['template-number-input'], 10),
                 'name': req.body['name-input'],
                 'fromLong': req.body['from-long-input'],
@@ -244,6 +246,8 @@ app.post('/submit', urlencodedParser, (req, res) => {
                 'time': req.body['time-input'],
                 'gate': req.body['gate-input'],
                 'seat': req.body['seat-input']
+            }, {
+                'upsert': true
             });
 
             res.send(templateHtml
