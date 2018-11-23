@@ -16,7 +16,7 @@
         <label for="flight-input" id="flight-label">Flight:</label>
         <input type="text" id="flight-input" name="flight-input" placeholder="e.g. AC658" required>
         <label for="time-input" id="time-label">Time:</label>
-        <input type="text" id="time-input" name="time-input" value="Wed, 09 Jan 2019 21:15:00 GMT+0800" required>
+        <input type="text" id="time-input" name="time-input" required>
         <label for="gate-input" id="gate-label">Gate:</label>
         <input type="text" id="gate-input" name="gate-input" placeholder="e.g. 32" required>
         <label for="seat-input" id="seat-label">Seat:</label>
@@ -26,3 +26,6 @@
         <button type="submit" id="submit">Submit</button>
     </div>
 </form>
+<script>
+    document.getElementById('time-input').value = new Date(Date.now() + 4 * 60 * 60 * 1000);    // Default flight time = +4 hours from now
+</script>

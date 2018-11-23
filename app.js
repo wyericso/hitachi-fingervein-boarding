@@ -115,7 +115,7 @@ app.get('/login', (req, resp) => {
 
             console.log('Showing boarding pass.');
             let flightDateObj = new Date(boardingPass.time);
-            let boardingDateObj = new Date(flightDateObj - 1000 * 60 * 30);     // flight time minus 30 mins
+            let boardingDateObj = new Date(flightDateObj - 30 * 60 * 1000);     // flight time minus 30 mins
             resp.send(templateHtml
                 .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, '<li>Hello, ' + boardingPass.name + '!</li><li><a href="' + process.env.THIS_URL + '/logout">Logout</a></li>')
