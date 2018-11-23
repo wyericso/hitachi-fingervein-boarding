@@ -6,14 +6,14 @@ const fs = require('fs');
 const http = require('http');
 const MongoClient = require('mongodb').MongoClient;
 const urlencodedParser = require('body-parser').urlencoded({extended: true});
-const templateHtml = fs.readFileSync('templates/template.html', 'utf8');
-const boardingHtml = fs.readFileSync('templates/boarding.html_', 'utf8');
-const registerHtml = fs.readFileSync('templates/register.html_', 'utf8');
+const templateHtml = fs.readFileSync(__dirname + '/templates/template.html', 'utf8');
+const boardingHtml = fs.readFileSync(__dirname + '/templates/boarding.html_', 'utf8');
+const registerHtml = fs.readFileSync(__dirname + '/templates/register.html_', 'utf8');
 const MONTH = [
     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
 ];
-require('dotenv').config();
+require('dotenv').config({path: __dirname + '/.env'});
 
 const ledGreenBlink = function () {
     return new Promise((resolve) => {
@@ -57,7 +57,7 @@ let dB_Collection;
     }
 })();
 
-app.use(express.static('views'));
+app.use(express.static(__dirname + '/views'));
 
 app.get('/', function (req, res) {
     res.send(templateHtml
