@@ -37,15 +37,25 @@ const mongoClient = new MongoClient(process.env.DB_URL, { useNewUrlParser: true}
 let dB_Collection;
 
 (async () => {
-    await mongoClient.connect();
-    console.log('DB server connected.');
-    dB_Collection = mongoClient.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME);
+    try {
+        await mongoClient.connect();
+        console.log('DB server connected.');
+        dB_Collection = mongoClient.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME);
+        await (() => {
+            return new Promise((resolve) => {
+                http.get(process.env.FINGER_VEIN_API + '/api/send_encryption_key', (res) => {
+                    res.resume();
+                    resolve();
+                });
+            });
+        })();
+        await ledGreenOn();
+        console.log('Application ready.');
+    }
+    catch (err) {
+        console.log('Error: ', err);
+    }
 })();
-
-
-http.get(process.env.FINGER_VEIN_API + '/api/ledgreenon', (res) => {
-    res.resume();
-});
 
 app.use(express.static('views'));
 
@@ -275,6 +285,14 @@ app.post('/submit', urlencodedParser, (req, res) => {
 
 process.on('SIGINT', async () => {
     await mongoClient.close();
+    await (() => {
+        return new Promise((resolve) => {
+            http.get(process.env.FINGER_VEIN_API + '/api/reset', (res) => {
+                res.resume();
+                resolve();
+            });
+        });
+    })();
     http.get(process.env.FINGER_VEIN_API + '/api/ledgreenoff', (res) => {
         res.resume();
         process.exit();
