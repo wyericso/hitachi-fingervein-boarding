@@ -21,13 +21,10 @@ This application is for demonstration purposes only.
 5. Use web browser to open the web interface.
 
 ## Todo ##
-- Test migrating platform
-- Add finger vein initialization step (i.e. sending encryption key)
 - Minor bug fixing:
     - Cannot reset finger vein device after API starting
 - eslint
     - Try use `const` whenever possible
     - Use `() => {}` instead of `function () {}` whenever possible
-- Screen capture or recording for presentation
 - Explore glitch
 - Error handling
