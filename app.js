@@ -22,7 +22,7 @@ const ledGreenBlink = function () {
             resolve();
         });
     });
-}
+};
 
 const ledGreenOn = function () {
     return new Promise((resolve) => {
@@ -39,7 +39,7 @@ let dB_Collection;
 (async () => {
     try {
         await mongoClient.connect();
-        console.log('DB server connected.');
+        process.stdout.write('DB server connected.\n');
         dB_Collection = mongoClient.db(process.env.DB_NAME).collection(process.env.COLLECTION_NAME);
         await (() => {
             return new Promise((resolve) => {
@@ -50,10 +50,10 @@ let dB_Collection;
             });
         })();
         await ledGreenOn();
-        console.log('Application ready.');
+        process.stdout.write('Application ready.\n');
     }
     catch (err) {
-        console.log('Error: ', err);
+        process.stdout.write('Error: ' + err + '\n');
     }
 })();
 
@@ -74,7 +74,7 @@ app.get('/login', (req, resp) => {
     let verification_1toN = function () {
         return new Promise(async (resolve, reject) => {
             await ledGreenBlink();
-            console.log('Calling finger vein verification 1 to N API.');
+            process.stdout.write('Calling finger vein verification 1 to N API.\n');
             let data = '';
 
             http.get(process.env.FINGER_VEIN_API + '/api/verification_1toN', (res) => {
@@ -96,7 +96,7 @@ app.get('/login', (req, resp) => {
 
     let loadBoardingPass = function (verifiedTemplateNumber) {
         return new Promise((resolve, reject) => {
-            console.log('Loading boarding pass.');
+            process.stdout.write('Loading boarding pass.\n');
             dB_Collection.findOne({'verifiedTemplateNumber': verifiedTemplateNumber}, (err, boardingPass) => {
                 if (boardingPass) {
                     resolve(boardingPass);
@@ -113,7 +113,7 @@ app.get('/login', (req, resp) => {
             const verifiedTemplateNumber = await verification_1toN();
             const boardingPass = await loadBoardingPass(verifiedTemplateNumber);
 
-            console.log('Showing boarding pass.');
+            process.stdout.write('Showing boarding pass.\n');
             let flightDateObj = new Date(boardingPass.time);
             let boardingDateObj = new Date(flightDateObj - 30 * 60 * 1000);     // flight time minus 30 mins
             resp.send(templateHtml
@@ -138,7 +138,7 @@ app.get('/login', (req, resp) => {
             );
         }
         catch (err) {
-            console.log('Error: ', err);
+            process.stdout.write('Error: ' + err + '\n');
             resp.send(templateHtml
                 .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, `
@@ -159,7 +159,7 @@ app.get('/register', (req, resp) => {
     const receiveTemplate = function() {
         return new Promise(async (resolve, reject) => {
             await ledGreenBlink();
-            console.log('Calling finger vein receive template API.');
+            process.stdout.write('Calling finger vein receive template API.\n');
             let data = '';
 
             http.get(process.env.FINGER_VEIN_API + '/api/receive_template', (res) => {
@@ -181,7 +181,7 @@ app.get('/register', (req, resp) => {
 
     const sendTemplate = function(templateObj) {
         return new Promise(async (resolve, reject) => {
-            console.log('Calling finger vein send template API.');
+            process.stdout.write('Calling finger vein send template API.\n');
             let data = '';
 
             const options = {
@@ -215,7 +215,7 @@ app.get('/register', (req, resp) => {
             const templateObj = await receiveTemplate();
             const templateNumber = await sendTemplate(templateObj);
 
-            console.log('Showing registration page.');
+            process.stdout.write('Showing registration page.\n');
             resp.send(templateHtml
                 .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, `
@@ -227,7 +227,7 @@ app.get('/register', (req, resp) => {
             );
         }
         catch (err) {
-            console.log('Error: ', err);
+            process.stdout.write('Error: ' + err + '\n');
             resp.send(templateHtml
                 .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, `
@@ -270,8 +270,8 @@ app.post('/submit', urlencodedParser, (req, res) => {
             );
         }
         catch (err) {
-            console.log('Error: ', err);
-            resp.send(templateHtml
+            process.stdout.write('Error: ' + err + '\n');
+            res.send(templateHtml
                 .replace(/{THIS_URL}/g, process.env.THIS_URL)
                 .replace(/{NAV_PLACEHOLDER}/, `
                     <li onclick="register()">Register</li>
@@ -300,5 +300,5 @@ process.on('SIGINT', async () => {
 });
 
 const listener = app.listen(process.env.PORT, function() {
-    console.log('Listening on port ' + listener.address().port);
+    process.stdout.write('Listening on port ' + listener.address().port + '\n');
 });
