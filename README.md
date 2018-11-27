@@ -21,10 +21,8 @@ This application is for demonstration purposes only.
 5. Use web browser to open the web interface.
 
 ## Todo ##
-- Minor bug fixing:
-    - Cannot reset finger vein device after API starting
-- eslint
-    - Try use `const` whenever possible
-    - Use `() => {}` instead of `function () {}` whenever possible
+- Try use `const` whenever possible
+- Use `() => {}` instead of `function () {}` whenever possible
+- Test H1E-USB API response at starting
 - Explore glitch
 - Error handling
